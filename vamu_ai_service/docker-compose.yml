@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  vamu-ai-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vamu-ai-service
+    ports:
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=development
+      - PORT=8001
+      - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}
+      - BACKEND_API_URL=${BACKEND_API_URL:-http://host.docker.internal:3000}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - vamu-network
+
+networks:
+  vamu-network:
+    driver: bridge
+    name: vamu-network
