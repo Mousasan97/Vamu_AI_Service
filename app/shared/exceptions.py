@@ -27,3 +27,11 @@ class AuthenticationError(GooglePlacesAPIError):
 class ValidationError(VAMUAIException):
     """Raised when request validation fails."""
     pass
+
+
+class LLMAPIError(VAMUAIException):
+    """Raised when LLM API (like Groq) returns an error."""
+    def __init__(self, message: str, status_code: int = None):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(self.message)

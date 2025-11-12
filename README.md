@@ -6,12 +6,12 @@ Python-based AI microservice for the VAMU platform providing intelligent feature
 
 ### Current
 - **Where Inspiration** - AI-powered venue suggestions using Google Places API
+- **Wishlist Inspiration** - Event items suggestions using Groq LLM
 
 ### Planned
 - **When Inspiration** - Suggest optimal times for events
 - **What Inspiration** - Event idea generation
 - **Who Inspiration** - Attendee suggestions
-- **Wishlist Inspiration** - Event items and rules suggestions
 - **Chatbot** - Conversational AI for event planning
 - **AI Agent** - Autonomous event planning assistant
 
@@ -19,7 +19,7 @@ Python-based AI microservice for the VAMU platform providing intelligent feature
 
 - **Framework**: FastAPI (Python 3.11+)
 - **Architecture**: Feature-Based Clean Architecture
-- **APIs**: Google Places API (Text Search & Nearby Search)
+- **APIs**: Google Places API, Groq LLM API
 - **Deployment**: Docker containers
 
 ## Project Structure
@@ -51,6 +51,7 @@ vamu_ai_service/
 - Python 3.11+
 - Docker & Docker Compose
 - Google Places API Key
+- Groq API Key
 
 ### Installation
 
@@ -155,6 +156,40 @@ Suggests venues for an event based on the event description.
 }
 ```
 
+### Inspiration - Wishlist
+
+**POST** `/api/v1/inspiration/wishlist`
+
+Suggests items needed for an event using AI.
+
+**Request:**
+```json
+{
+  "event_name": "BBQ party",
+  "max_items": 10
+}
+```
+
+**Response:**
+```json
+{
+  "event_name": "BBQ party",
+  "items_needed": [
+    "meat (steaks, burgers, sausages)",
+    "BBQ sauce",
+    "seasonings (salt, pepper, herbs)",
+    "vegetables (bell peppers, onions, mushrooms)",
+    "buns or bread",
+    "salad or sides",
+    "chips or snacks",
+    "drinks (soft drinks, beer, water)",
+    "utensils (tongs, forks, knives)",
+    "plates and napkins"
+  ],
+  "total_items": 10
+}
+```
+
 ### Health Check
 
 **GET** `/health`
@@ -198,6 +233,7 @@ pytest tests/
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `GOOGLE_PLACES_API_KEY` | Google Places API key | Required |
+| `GROQ_API_KEY` | Groq API key for LLM features | Required |
 | `ENVIRONMENT` | Environment (development/production) | development |
 | `PORT` | Service port | 8001 |
 | `BACKEND_API_URL` | NestJS backend URL | http://localhost:3000 |
@@ -223,7 +259,7 @@ pytest tests/
 ## Future Enhancements
 
 - [ ] Add caching with Redis
-- [ ] Implement other inspiration fields (when, what, who, wishlist)
+- [ ] Implement other inspiration fields (when, what, who)
 - [ ] Add chatbot feature with OpenAI/Anthropic
 - [ ] Implement AI agent capabilities
 - [ ] Add rate limiting

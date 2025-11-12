@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     GOOGLE_PLACES_API_KEY: str
     GOOGLE_PLACES_BASE_URL: str = "https://places.googleapis.com/v1"
 
+    # Groq API (for LLM features like wishlist)
+    GROQ_API_KEY: str
+
     # NestJS Backend Integration
     BACKEND_API_URL: str = "http://localhost:3000"
 

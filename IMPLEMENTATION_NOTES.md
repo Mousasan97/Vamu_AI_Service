@@ -2,7 +2,9 @@
 
 ## Current Status: ✅ PRODUCTION READY
 
-The "Where" inspiration feature is fully implemented and tested.
+Two inspiration features are fully implemented and tested:
+- **Where** - Venue suggestions (Google Places API)
+- **Wishlist** - Item suggestions (Groq LLM API)
 
 ## Key Implementation Details
 
@@ -55,9 +57,8 @@ The service implements smart location handling to prioritize text query location
 
 Required:
 - `GOOGLE_PLACES_API_KEY` - Your Google Places API key
+- `GROQ_API_KEY` - Your Groq API key for LLM features
 - All others have sensible defaults
-
-See `.env.example` for full list.
 
 ## API Endpoint
 
@@ -82,13 +83,26 @@ See `.env.example` for full list.
 
 **Response:** Real venue data from Google Places with ratings, addresses, hours, etc.
 
+**POST** `/api/v1/inspiration/wishlist`
+
+Suggests items needed for an event.
+
+**Request:**
+```json
+{
+  "event_name": "BBQ party",
+  "max_items": 10
+}
+```
+
+**Response:** List of suggested items using Groq LLM.
+
 ## Next Steps
 
 Future enhancements ready to implement:
 - `/when` - Time suggestions
-- `/what` - Event idea generation  
+- `/what` - Event idea generation
 - `/who` - Attendee suggestions
-- `/wishlist` - Items/rules suggestions
 - Chatbot integration
 - Redis caching
 - Rate limiting
@@ -105,5 +119,5 @@ docker-compose up
 Update `ENVIRONMENT=production` and deploy container.
 
 ---
-**Last Updated:** 2025-11-09
-**Status:** Working and tested
+**Last Updated:** 2025-11-13
+**Status:** Working and tested - Both WHERE and WISHLIST endpoints active

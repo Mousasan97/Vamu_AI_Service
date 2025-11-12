@@ -2,24 +2,28 @@
 
 ## What We Built
 
-A Python FastAPI microservice that provides AI-powered venue suggestions for the VAMU event platform using Google Places API.
+A Python FastAPI microservice providing AI-powered features for the VAMU event platform:
+- **Venue suggestions** using Google Places API
+- **Item suggestions** using Groq LLM API
 
 ## Technology Stack
 - Language: Python 3.11+
 - Framework: FastAPI
 - HTTP Client: httpx
 - Validation: Pydantic
+- APIs: Google Places, Groq LLM
 - Deployment: Docker
 
 ## Architecture Pattern
 Feature-Based Clean Architecture with 4 layers
 
 ## Status
-✅ Core implementation complete and ready for testing
+✅ Two features implemented and tested:
+- WHERE endpoint - Venue suggestions
+- WISHLIST endpoint - Item suggestions
 
-## Next Steps
-1. Add Google Places API key to .env
-2. Test with docker-compose up
-3. Integrate with NestJS backend
+## Current Endpoints
+- POST `/api/v1/inspiration/where` - Venue suggestions
+- POST `/api/v1/inspiration/wishlist` - Item suggestions
 
-For detailed information, see README.md and QUICKSTART.md
+For detailed information, see README.md

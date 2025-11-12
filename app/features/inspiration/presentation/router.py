@@ -9,6 +9,8 @@ from app.features.inspiration.presentation.schemas import (
     VenueResponse,
     LocationResponse,
     OpeningHoursResponse,
+    WishlistRequest,
+    WishlistResponse,
     ErrorResponse,
 )
 from app.features.inspiration.domain.entities.search_params import SearchParams
@@ -16,10 +18,16 @@ from app.features.inspiration.domain.entities.location import Location
 from app.features.inspiration.application.use_cases.suggest_where_use_case import (
     SuggestWhereUseCase,
 )
+from app.features.inspiration.application.use_cases.suggest_wishlist_use_case import (
+    SuggestWishlistUseCase,
+)
 from app.features.inspiration.infrastructure.providers.google_places_provider import (
     GooglePlacesProvider,
 )
-from app.shared.exceptions import GooglePlacesAPIError, RateLimitError, AuthenticationError
+from app.features.inspiration.infrastructure.providers.groq_provider import (
+    GroqProvider,
+)
+from app.shared.exceptions import GooglePlacesAPIError, LLMAPIError, RateLimitError, AuthenticationError
 
 
 logger = logging.getLogger(__name__)
@@ -38,6 +46,18 @@ def get_suggest_where_use_case(
 ) -> SuggestWhereUseCase:
     """Get SuggestWhereUseCase instance with dependencies."""
     return SuggestWhereUseCase(places_provider=places_provider)
+
+
+def get_groq_provider() -> GroqProvider:
+    """Get Groq provider instance."""
+    return GroqProvider()
+
+
+def get_suggest_wishlist_use_case(
+    groq_provider: GroqProvider = Depends(get_groq_provider),
+) -> SuggestWishlistUseCase:
+    """Get SuggestWishlistUseCase instance with dependencies."""
+    return SuggestWishlistUseCase(groq_provider=groq_provider)
 
 
 @router.post(
@@ -167,6 +187,62 @@ def _venue_to_response(venue) -> VenueResponse:
         ) if venue.opening_hours else None,
         google_maps_uri=venue.google_maps_uri,
     )
+
+
+@router.post(
+    "/wishlist",
+    response_model=WishlistResponse,
+    responses={
+        200: {"description": "Successful response with wishlist suggestions"},
+        400: {"model": ErrorResponse, "description": "Invalid request"},
+        429: {"model": ErrorResponse, "description": "Rate limit exceeded"},
+        500: {"model": ErrorResponse, "description": "Server error"},
+    },
+    summary="Get wishlist item suggestions for an event",
+    description="Suggests items to bring/prepare for an event using AI",
+)
+async def suggest_wishlist(
+    request: WishlistRequest,
+    use_case: SuggestWishlistUseCase = Depends(get_suggest_wishlist_use_case),
+):
+    """
+    Suggest items for an event wishlist.
+
+    Example:
+        Request: {"event_name": "BBQ party", "max_items": 10}
+        Response: List of items needed for the BBQ party
+    """
+    try:
+        logger.info(f"Received wishlist request for event: {request.event_name}")
+
+        # Execute use case
+        suggestion = await use_case.execute(
+            event_name=request.event_name,
+            max_items=request.max_items
+        )
+
+        # Convert to response format
+        return WishlistResponse(
+            event_name=suggestion.event_name,
+            items_needed=suggestion.items,
+            total_items=suggestion.item_count,
+        )
+
+    except RateLimitError as e:
+        logger.error(f"Rate limit error: {e}")
+        raise HTTPException(status_code=429, detail=str(e))
+
+    except AuthenticationError as e:
+        logger.error(f"Authentication error: {e}")
+        raise HTTPException(status_code=500, detail="Service configuration error")
+
+    except LLMAPIError as e:
+        logger.error(f"LLM API error: {e}")
+        raise HTTPException(status_code=500, detail=f"External API error: {str(e)}")
+
+    except Exception as e:
+        logger.exception(f"Unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/health", summary="Health check")

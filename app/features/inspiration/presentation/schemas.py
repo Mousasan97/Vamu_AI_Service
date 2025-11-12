@@ -121,3 +121,56 @@ class ErrorResponse(BaseModel):
     error: str
     detail: Optional[str] = None
     status_code: int
+
+
+# Wishlist Schemas
+
+class WishlistRequest(BaseModel):
+    """Request for wishlist item suggestions."""
+    event_name: str = Field(
+        ...,
+        min_length=1,
+        max_length=200,
+        description="The name or description of the event",
+    )
+    max_items: int = Field(
+        10,
+        ge=1,
+        le=50,
+        description="Maximum number of items to suggest",
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "event_name": "BBQ party",
+                "max_items": 10
+            }
+        }
+
+
+class WishlistResponse(BaseModel):
+    """Response containing wishlist suggestions."""
+    event_name: str
+    items_needed: List[str]
+    total_items: int
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "event_name": "BBQ party",
+                "items_needed": [
+                    "Charcoal or propane",
+                    "Lighter fluid and matches",
+                    "Meat (burgers, hot dogs, chicken)",
+                    "Vegetables for grilling",
+                    "Buns and bread",
+                    "Condiments (ketchup, mustard, mayo)",
+                    "Paper plates and napkins",
+                    "Drinks and ice",
+                    "Grill tools (tongs, spatula)",
+                    "Outdoor seating",
+                ],
+                "total_items": 10,
+            }
+        }
